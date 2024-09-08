@@ -220,15 +220,39 @@ class LocalFeatureClustering:
         flatten_features = aligned_wfs.reshape(aligned_wfs.shape[0], -1)
 
         if flatten_features.shape[1] > n_pca_features:
+
             from sklearn.decomposition import PCA
+            import umap
+            from sklearn.pipeline import Pipeline
+
 
             if scale_n_pca_by_depth:
+                print("SPLITTING USING PCA")
                 # tsvd = TruncatedSVD(n_pca_features * recursion_level)
                 tsvd = PCA(n_pca_features * recursion_level, whiten=True)
+                # tsvd = Pipeline([
+                #             ('whiten', PCA(whiten=True)),  # Whiten the data
+                #             ('umap', umap.UMAP(n_components=n_pca_features*recursion_level))          # Apply UMAP
+                #         ])
             else:
+                print("SPLITTING USING UMAP")
                 # tsvd = TruncatedSVD(n_pca_features)
                 tsvd = PCA(n_pca_features, whiten=True)
+                tsvd = Pipeline([
+                            # ('whiten', PCA(whiten=True)),  # Whiten the data
+                            ('umap', umap.UMAP(n_components=n_pca_features, min_dist=0, n_neighbors=30))          # Apply UMAP
+                        ])
             final_features = tsvd.fit_transform(flatten_features)
+
+            # plot flatten features pca vs umap
+            # import matplotlib.pyplot as plt
+            # fig, ax = plt.subplots(1, 2)
+            # final_features_pca = PCA(n_pca_features).fit_transform(flatten_features)
+            # ax[0].scatter(final_features_pca[:, 0], final_features_pca[:, 1])
+            # ax[0].set_title("PCA")
+            # ax[1].scatter(final_features[:, 0], final_features[:, 1])
+            # ax[1].set_title("UMAP")
+            # plt.show()
         else:
             final_features = flatten_features
 

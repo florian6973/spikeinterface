@@ -273,6 +273,7 @@ class BenchmarkStudy:
             ax.bar(i, rt, width=0.8, color=colors[key])
         ax.set_xticks(np.arange(len(case_keys)))
         ax.set_xticklabels(labels, rotation=45.0)
+        ax.set_ylabel("Run time (s)")
         return fig
 
         # ax = run_times.plot(kind="bar")

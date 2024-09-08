@@ -178,6 +178,8 @@ class ClusteringStudy(BenchmarkStudy):
             ax.set_title(self.cases[key]["label"])
             plot_agreement_matrix(self.get_result(key)["gt_comparison"], ax=ax)
 
+        fig.suptitle("Agreement matrices")
+
         return fig
 
     def plot_performances_vs_snr(self, case_keys=None, figsize=(15, 15)):
@@ -202,6 +204,8 @@ class ClusteringStudy(BenchmarkStudy):
 
             if count == 2:
                 ax.legend()
+
+        fig.suptitle("Performance vs SNR")
 
         return fig
 
@@ -239,6 +243,8 @@ class ClusteringStudy(BenchmarkStudy):
             fig.colorbar(im, ax=axes[0, count])
             label = self.cases[key]["label"]
             axes[0, count].set_title(label)
+
+        fig.suptitle("Error metrics")
 
         return fig
 
@@ -298,6 +304,8 @@ class ClusteringStudy(BenchmarkStudy):
             label = self.cases[key]["label"]
             axes[count].set_title(label)
             axes[count].legend()
+
+        fig.suptitle("Metrics vs SNR")
 
         return fig
 
@@ -468,6 +476,8 @@ class ClusteringStudy(BenchmarkStudy):
                     ax.spines["right"].set_visible(False)
                     ax.set_xticks([])
                     ax.set_yticks([])
+
+        fig.suptitle("Comparison clustering")
 
         plt.tight_layout(h_pad=0, w_pad=0)
 

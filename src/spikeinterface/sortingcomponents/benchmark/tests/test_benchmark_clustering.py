@@ -8,6 +8,8 @@ from spikeinterface.sortingcomponents.benchmark.benchmark_clustering import Clus
 from spikeinterface.core.sortinganalyzer import create_sorting_analyzer
 from spikeinterface.core.template_tools import get_template_extremum_channel
 
+from pathlib import Path
+
 
 @pytest.mark.skip()
 def test_benchmark_clustering(create_cache_folder):
@@ -36,7 +38,7 @@ def test_benchmark_clustering(create_cache_folder):
         peaks[dataset] = spikes
 
     cases = {}
-    for method in ["random_projections", "circus", "tdc_clustering"]:
+    for method in ["circus_umap", "random_projections", "circus", "tdc_clustering"]:
         cases[method] = {
             "label": f"{method} on toy",
             "dataset": "toy",
@@ -78,4 +80,4 @@ def test_benchmark_clustering(create_cache_folder):
 
 
 if __name__ == "__main__":
-    test_benchmark_clustering()
+    test_benchmark_clustering(Path("."))
