@@ -266,14 +266,17 @@ class BenchmarkStudy:
         import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots()
+        fig.set_size_inches(12, 6)
         labels = []
         for i, key in enumerate(case_keys):
             labels.append(self.cases[key]["label"])
             rt = run_times.at[key, "run_times"]
             ax.bar(i, rt, width=0.8, color=colors[key])
         ax.set_xticks(np.arange(len(case_keys)))
-        ax.set_xticklabels(labels, rotation=45.0)
+        # ax.set_xticklabels(labels, rotation=45.0)
+        ax.set_xticklabels(labels)
         ax.set_ylabel("Run time (s)")
+        fig.tight_layout()
         return fig
 
         # ax = run_times.plot(kind="bar")
