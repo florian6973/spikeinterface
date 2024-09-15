@@ -38,13 +38,24 @@ def test_benchmark_clustering(create_cache_folder):
         peaks[dataset] = spikes
 
     cases = {}
-    for method in ["circus_umap", "random_projections", "circus", "tdc_clustering"]:
-        cases[method] = {
-            "label": f"{method} on toy",
-            "dataset": "toy",
-            "init_kwargs": {"indices": spike_indices, "peaks": peaks["toy"]},
-            "params": {"method": method, "method_kwargs": {}},
-        }
+    for method in ["circus_umap_gpu", "random_projections", "circus", "tdc_clustering"]:
+    # for method in ["circus_umap_cpu", "circus_umap_gpu", "random_projections", "circus", "tdc_clustering"]:
+        if method.endswith("cpu") or method.endswith("gpu"):
+            cases[method] = {
+                "label": f"{method} on toy",
+                "dataset": "toy",
+                "init_kwargs": {"indices": spike_indices, "peaks": peaks["toy"]},
+                "params": {"method": method[:-4], "method_kwargs": {
+                    "device": "cpu" if method.endswith("cpu") else "gpu"
+                }},
+            }
+        else:
+            cases[method] = {
+                "label": f"{method} on toy",
+                "dataset": "toy",
+                "init_kwargs": {"indices": spike_indices, "peaks": peaks["toy"]},
+                "params": {"method": method, "method_kwargs": {}},
+            }
 
     if study_folder.exists():
         shutil.rmtree(study_folder)
@@ -76,7 +87,12 @@ def test_benchmark_clustering(create_cache_folder):
     study.homogeneity_score(ignore_noise=False)
     import matplotlib.pyplot as plt
 
-    plt.show()
+    # plt.show()
+    # plt save all opened figs
+    for i in plt.get_fignums():
+        plt.figure(i)
+        plt.savefig(f"fig{i}.png")
+        print(f"fig{i}.png saved")
 
 
 if __name__ == "__main__":

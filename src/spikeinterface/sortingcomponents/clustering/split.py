@@ -188,6 +188,7 @@ class LocalFeatureClustering:
         n_pca_features=2,
         scale_n_pca_by_depth=False,
         minimum_common_channels=2,
+        device = "cpu",
     ):
         local_labels = np.zeros(peak_indices.size, dtype=np.int64)
 
@@ -222,14 +223,15 @@ class LocalFeatureClustering:
         if flatten_features.shape[1] > n_pca_features:
 
             from sklearn.decomposition import PCA
-            import umap
             from sklearn.pipeline import Pipeline
 
 
             if scale_n_pca_by_depth:
                 print("SPLITTING USING PCA")
                 # tsvd = TruncatedSVD(n_pca_features * recursion_level)
-                tsvd = PCA(n_pca_features * recursion_level, whiten=True)
+                # tsvd = PCA(n_pca_features * recursion_level, whiten=True)
+                tsvd = PCA(n_pca_features, whiten=True)
+
                 # tsvd = Pipeline([
                 #             ('whiten', PCA(whiten=True)),  # Whiten the data
                 #             ('umap', umap.UMAP(n_components=n_pca_features*recursion_level))          # Apply UMAP
@@ -237,11 +239,24 @@ class LocalFeatureClustering:
             else:
                 print("SPLITTING USING UMAP")
                 # tsvd = TruncatedSVD(n_pca_features)
-                tsvd = PCA(n_pca_features, whiten=True)
-                tsvd = Pipeline([
-                            # ('whiten', PCA(whiten=True)),  # Whiten the data
-                            ('umap', umap.UMAP(n_components=n_pca_features, min_dist=0, n_neighbors=30))          # Apply UMAP
-                        ])
+
+                if device == "cpu":
+
+                    import umap
+                    tsvd = PCA(n_pca_features, whiten=True)
+                    tsvd = Pipeline([
+                                # ('whiten', PCA(whiten=True)),  # Whiten the data
+                                ('umap', umap.UMAP(n_components=n_pca_features, min_dist=0, n_neighbors=30))          # Apply UMAP
+                            ])
+                
+                else:    
+                    from cuml.manifold import UMAP as cumlUMAP
+                    from cuml.cluster import HDBSCAN as cumlHDBSCAN
+                    tsvd = cumlUMAP(n_neighbors=30, min_dist=0, 
+                                        n_components=n_pca_features, 
+                                        metric='euclidean', random_state=42, verbose=0)
+                
+                # features = np.array(umap_model.fit_transform(waveforms))
             final_features = tsvd.fit_transform(flatten_features)
 
             # plot flatten features pca vs umap
@@ -257,11 +272,21 @@ class LocalFeatureClustering:
             final_features = flatten_features
 
         if clusterer == "hdbscan":
-            from hdbscan import HDBSCAN
+            if device == "cpu":
+                from hdbscan import HDBSCAN
 
-            clust = HDBSCAN(**clusterer_kwargs)
-            clust.fit(final_features)
-            possible_labels = clust.labels_
+                clust = HDBSCAN(**clusterer_kwargs)
+                clust.fit(final_features)
+                possible_labels = clust.labels_
+            else:
+                from cuml.cluster import HDBSCAN as cumlHDBSCAN
+                clusterer = cumlHDBSCAN(gen_min_span_tree=True,
+                                    **clusterer_kwargs)
+                
+                possible_labels = np.array(clusterer.fit_predict(final_features))
+
+
+
             is_split = np.setdiff1d(possible_labels, [-1]).size > 1
         elif clusterer == "isocut5":
             min_cluster_size = clusterer_kwargs["min_cluster_size"]

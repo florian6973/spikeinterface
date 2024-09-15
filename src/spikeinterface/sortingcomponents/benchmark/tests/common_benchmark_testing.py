@@ -23,7 +23,7 @@ ON_GITHUB = bool(os.getenv("GITHUB_ACTIONS"))
 
 def make_dataset():
     recording, gt_sorting = generate_ground_truth_recording(
-        durations=[60.0],
+        durations=[40.0],  #[60.0],
         sampling_frequency=30000.0,
         num_channels=16,
         num_units=10,

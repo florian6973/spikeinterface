@@ -65,11 +65,14 @@ class CircusUMAPClustering:
         "tmp_folder": None,
         "job_kwargs": {},
         "verbose": True,
+        "device": "cpu",
     }
 
     @classmethod
     def main_function(cls, recording, peaks, params):
         assert HAVE_HDBSCAN, "random projections clustering needs hdbscan to be installed"
+
+        device = params["device"]
 
         job_kwargs = fix_job_kwargs(params["job_kwargs"])
 
@@ -97,7 +100,7 @@ class CircusUMAPClustering:
 
         wfs = few_wfs[:, :, 0]
         from sklearn.decomposition import TruncatedSVD
-        import umap
+        # import umap
 
         # cne try, on server
 
@@ -212,6 +215,7 @@ class CircusUMAPClustering:
                     clusterer_kwargs=d["hdbscan_kwargs"],
                     n_pca_features=params["n_svd"][1],
                     scale_n_pca_by_depth=False,
+                    device=device,
                 ),
                 **params["recursive_kwargs"],
                 **job_kwargs,
