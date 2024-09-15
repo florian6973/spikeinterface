@@ -10,6 +10,7 @@ from spikeinterface.widgets import (
 
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 from .benchmark_tools import BenchmarkStudy, Benchmark
@@ -384,7 +385,7 @@ class ClusteringStudy(BenchmarkStudy):
         return fig
 
     def plot_unit_losses(self, cases_before, cases_after, metric="agreement", figsize=None):
-
+        
         fig, axs = plt.subplots(ncols=len(cases_before), nrows=1, figsize=figsize)
 
         for count, (case_before, case_after) in enumerate(zip(cases_before, cases_after)):

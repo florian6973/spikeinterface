@@ -75,6 +75,7 @@ class CircusUMAPClustering:
         device = params["device"]
 
         job_kwargs = fix_job_kwargs(params["job_kwargs"])
+        job_kwargs['n_jobs'] = 24
 
         d = params
         verbose = d["verbose"]

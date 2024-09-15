@@ -58,6 +58,7 @@ class TdcClustering:
         import hdbscan
 
         job_kwargs = params["job_kwargs"]
+        job_kwargs['n_jobs'] = 24
 
         if params["folder"] is None:
             randname = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))

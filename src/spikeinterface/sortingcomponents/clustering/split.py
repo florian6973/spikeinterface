@@ -259,6 +259,9 @@ class LocalFeatureClustering:
                 # features = np.array(umap_model.fit_transform(waveforms))
             final_features = tsvd.fit_transform(flatten_features)
 
+            if device == "gpu":
+                del tsvd # free up memory
+
             # plot flatten features pca vs umap
             # import matplotlib.pyplot as plt
             # fig, ax = plt.subplots(1, 2)

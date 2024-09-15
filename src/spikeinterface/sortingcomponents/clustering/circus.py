@@ -72,6 +72,7 @@ class CircusClustering:
         assert HAVE_HDBSCAN, "random projections clustering needs hdbscan to be installed"
 
         job_kwargs = fix_job_kwargs(params["job_kwargs"])
+        job_kwargs['n_jobs'] = 24
 
         d = params
         verbose = d["verbose"]
